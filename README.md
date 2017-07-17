@@ -3,14 +3,20 @@ Yet another Arduino-based plant watering system. This project aims to develop a 
 
 ## Getting Started
 *Minimum Installation* Arduino Uno and a 3-5 volt water pump. Pinouts and config settings are included in arduinohydrata.ino. Upload the Sketch in the usual way.
+
 *RTC Installation* Arduino Uno, a 3-5 volt water pump, and a DS1307 RTC. Pinouts and config settings are included in arduinohydrata.ino. Upload the Sketch in the usual way. The code has two commented-out lines which can be restored to stop the program if there is an error communicating with the RTC.
 ```Serial.println("ERROR: Couldn't find RTC");
-//while (1);```
+//while (1);
+```
 
 ```Serial.println("ERROR: RTC is NOT running. Check wiring.");
-//while (1);```
+//while (1);
+```
+
 *Moisture Sensor Installation* FC-28 module not yet implemented.
+
 *Bluetooth Installation* HC-05 module not yet implemented.
+
 *Full Build* See the Parts subdirectory for parts and schematics.
 
 ## Parts
