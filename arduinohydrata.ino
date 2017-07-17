@@ -1,15 +1,28 @@
-
 /*
- * +-- WIRING ---------------------+
+ * WIRING ---------------------+
  *  Arduino    Pump IC
- *    2          Pump VCC
+ *    GND        GND
+ *    2          VCC
  *    10         LED
  * 
- *  Arduino    Tiny rtc I2C Module
+ *  Arduino    Tiny RTC
  *    A5         SCL
  *    A4         SDA
  *    VCC        VCC
  *    GND        GND
+ *    
+ *  Arduino    Moisture Sensor
+ *    VCC        VCC
+ *    GND        GND
+ *    A0         A0
+ *    13         D0
+ *    
+ *  Arduino    Bluetooth
+ *    VCC        VCC
+ *    GND        GND
+ *    TX0        RX
+ *    RX1        TX
+ *    
  * +-------------------------------+
  */
 
@@ -18,13 +31,14 @@
 
 RTC_DS1307 rtc;
 
-int motorPin = 2; // pin that turns on the motor
+int pumpPin = 2; // pin that turns on the motor
 int blinkPin = 10; // pin that turns on the LED
 
 /* Configuration */
 char mode = 'P';       // "T" for 'Time' using clock, "P" for 'Period' using counter
-int watertime = 10;    // P: how long to water in seconds
-int waittime = 1;      // P: how long to wait (min) between waterings
+int watertime = 10;    // how long to water in seconds
+int waittime = 1;      // how long to wait between waterings, in minutes
+int counterwait = 60;  // reset time in seconds
 int alarmHour_1 = 1;   // hour to start watering
 int alarmMin_1 = 25;   // minute to start watering
 
@@ -37,19 +51,19 @@ void setup()
   Wire.begin();
   Serial.begin(9600);
   
-  pinMode(motorPin, OUTPUT); // set A0 to an output so we can use it to turn on the transistor
+  pinMode(pumpPin, OUTPUT); // set A0 to an output so we can use it to turn on the transistor
   pinMode(blinkPin, OUTPUT); // set pin 13 to an output so we can use it to turn on the LED
   
   if (! rtc.begin()) {
     Serial.println("ERROR: Couldn't find RTC");
-    while (1);               // comment-out if there is no RTC
+    //while (1);
   } else if (rtc.begin()) {
     Serial.println("SUCCESS: Found RTC");
   }
 
   if (! rtc.isrunning()) {
     Serial.println("ERROR: RTC is NOT running. Check wiring.");
-    while (1);               // comment-out if there is no RTC
+    //while (1);
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   } else if ( rtc.isrunning() ) {
     Serial.println("SUCCESS: RTC is running");
@@ -57,6 +71,7 @@ void setup()
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   }
   DateTime now = rtc.now();
+
 
   Serial.print("MODE: ");
   if (mode == 'P') {
@@ -72,7 +87,7 @@ void setup()
   }
   Serial.print("BOOT: ");
 
-  /* DateTime variables: unixtime, year, month, day, hour, minute, second */
+  // DateTime variables: unixtime, year, month, day, hour, minute, second
   Serial.print(now.year());
   Serial.print("/");
   Serial.print(now.month());
@@ -92,7 +107,7 @@ void loop()
 {
   DateTime now = rtc.now(); 
   
-  /* DateTime variables: unixtime, year, month, day, hour, minute, second */
+  // RTC DateTime variables: unixtime, year, month, day, hour, minute, second
   if (mode == 'T' ) {
     if (now.second() == 0 || now.second() == 15 || now.second() == 30 || now.second() == 45) {
       Serial.print(now.hour(), DEC);
@@ -105,7 +120,7 @@ void loop()
       if (now.hour() == alarmHour_1 && now.minute() == alarmMin_1 && now.second() == 0) {
         watering = true;
         Serial.print("watering. ");  // Serial report
-        digitalWrite(motorPin, HIGH); // turn on the motor
+        digitalWrite(pumpPin, HIGH); // turn on the motor
         Serial.print("Pump ON ");  // Serial report
         ++counter;
         delay(1000);
@@ -124,7 +139,7 @@ void loop()
         ++counter;
         delay(1000);
       } else if (counter == watertime) {
-        digitalWrite(motorPin, LOW);  // turn off the motor
+        digitalWrite(pumpPin, LOW);  // turn off the motor
         Serial.println("Pump OFF ");  // Serial report
         digitalWrite(blinkPin, LOW);  // turn off the LED
         watering = false;
@@ -145,7 +160,7 @@ void loop()
       Serial.print(":");
       Serial.print(now.second(), DEC);
       Serial.print(": ");
-      digitalWrite(motorPin, HIGH); // turn on the motor
+      digitalWrite(pumpPin, HIGH); // turn on the motor
       Serial.print("Pump ON ");  // Serial report
       digitalWrite(blinkPin, HIGH); // turn on the LED
       ++counter;
@@ -155,12 +170,12 @@ void loop()
       ++counter;
       delay(1000);
     } else if (counter == watertime) {
-      digitalWrite(motorPin, LOW);  // turn off the motor
+      digitalWrite(pumpPin, LOW);  // turn off the motor
       Serial.println("Pump OFF");  // Serial report
       digitalWrite(blinkPin, LOW);  // turn off the LED
       ++counter;
       delay(1000);
-    } else if (counter == (waittime*60)) {
+    } else if (counter == counterwait) {
       counter = 0;
       delay(1000);
     } else {
@@ -169,25 +184,3 @@ void loop()
     }
   }
 }
-  
- 
-  
-  /* Serial.print(now.unixtime(), DEC);
-  Serial.print(" - ");
-  Serial.print(now.hour(), DEC);
-  Serial.print(":");
-  Serial.print(now.minute(), DEC);
-  Serial.print(":");
-  Serial.print(now.second(), DEC);
-  Serial.print(" - ");
-  if (now.hour() == 0) {
-    Serial.println("It's a new day!");
-  }
-  Serial.println("\r\n");
-  */
-  /*
-  if (now.hour() == waterHour && now.hour() == waterMin) {
-    digitalWrite(blinkPin, HIGH); // turn on the LED;
-  }
-  delay(1000);
-  */
