@@ -67,7 +67,7 @@ void setup()
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   } else if ( rtc.isrunning() ) {
     Serial.println("SUCCESS: RTC is running");
-    // following line sets the rtc to the date & time this sketch was compiled
+    //following line sets the rtc to the date & time this sketch was compiled
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   }
   DateTime now = rtc.now();
@@ -121,14 +121,14 @@ void loop()
         watering = true;
         Serial.print("watering. ");  // Serial report
         digitalWrite(pumpPin, HIGH); // turn on the motor
-        Serial.print("Pump ON ");  // Serial report
+        Serial.print("Pump ON");  // Serial report
         ++counter;
         delay(1000);
       } else if (watering == false){
         Serial.println("waiting for time");
         delay(1000);
       } else {
-        Serial.println("ERROR 1");
+        Serial.println("ERROR 1: neither True nor False");
         while (1);
       }
     }
@@ -140,13 +140,13 @@ void loop()
         delay(1000);
       } else if (counter == watertime) {
         digitalWrite(pumpPin, LOW);  // turn off the motor
-        Serial.println("Pump OFF ");  // Serial report
+        Serial.println("Pump OFF");  // Serial report
         digitalWrite(blinkPin, LOW);  // turn off the LED
         watering = false;
         counter = 0;
         delay(1000);
       } else {
-        Serial.println("ERROR 2");
+        Serial.println("ERROR 2: impossible counter value");
         while (1);
       }
     }
@@ -175,12 +175,25 @@ void loop()
       digitalWrite(blinkPin, LOW);  // turn off the LED
       ++counter;
       delay(1000);
+      Serial.print(now.hour(), DEC);
+      Serial.print(":");
+      Serial.print(now.minute(), DEC);
+      Serial.print(":");
+      Serial.print(now.second(), DEC);
+      Serial.print(": Waiting");
+    } else if (counter > watertime && counter < counterwait) {
+      //Serial.print(" . ");
+      ++counter;
+      delay(1000);
     } else if (counter == counterwait) {
+      Serial.println("OK");
       counter = 0;
       delay(1000);
     } else {
-      ++counter;
-      delay(1000);
+      Serial.println("ERROR 3: impossible counter value");
+      while (1);
+      //++counter;
+      //delay(1000);
     }
   }
 }
