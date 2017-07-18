@@ -22,16 +22,17 @@ Serial.println("ERROR: RTC is NOT running. Check wiring.");
 *Full Build* See the Parts subdirectory for parts and schematics.
 
 ## Parts
-* BTE13-010 - Arduino Pro Mini clone
-* DS1307 - Tiny RTC I2C module
-* HC-05 - Bluetooth module master/slave
+* BTE13-010 - Arduino Pro Mini clone (<16.6 mA)
+* DS1307 - Tiny RTC I2C module (~1.5 mA)
+* HC-05 - Bluetooth module master/slave (<40mA)
 * FC-28 - soil moisture sensor module
+* Mini Pump - 3.5-6v generic, 80-120L/H (130-220mA)
 * Misc: LED & resistor, pin headers
 
 ## WIRING
 Note: Wiring instructions may vary slightly between manufacturers. Check your pinouts.
 
-|BTE13-010|Pump IC|
+|BTE13-010|Pump|
 | --- | ---:|
 |GND|GND|
 |2|VCC|
