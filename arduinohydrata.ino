@@ -26,24 +26,35 @@
  * +-------------------------------+
  */
 
+#include <Arduino.h>
 #include <Wire.h>
 #include <RTClib.h>
+#include "HC05.h" // https://github.com/jdunmire/HC05
 
 RTC_DS1307 rtc;
 
-int pumpPin = 2; // pin that turns on the motor
-int blinkPin = 10; // pin that turns on the LED
+int pumpPin = 2;       // pin that turns on the motor
+int blinkPin = 10;     // pin that turns on the LED
 
 /* Configuration */
 char mode = 'P';       // "T" for 'Time' using clock, "P" for 'Period' using counter
 int watertime = 10;    // how long to water in seconds
 int waittime = 1;      // how long to wait between waterings, in minutes
-int counterwait = 60;  // reset time in seconds
 int alarmHour_1 = 1;   // hour to start watering
 int alarmMin_1 = 25;   // minute to start watering
 
+int counterwait = waittime * 60;
 int counter = 0; 
 bool watering = false;
+
+/* btSerial echo.ino from HC05 
+#ifdef HC05_SOFTWARE_SERIAL
+#include <SoftwareSerial.h>
+HC05 btSerial = HC05(A2, A5, A3, A4);  // cmd, state, rx, tx
+#else
+HC05 btSerial = HC05(3, 2);  // cmd, state
+#endif
+*/
 
 void setup()
 {
@@ -75,7 +86,7 @@ void setup()
 
   Serial.print("MODE: ");
   if (mode == 'P') {
-    Serial.print("Periodic");
+    Serial.println("Periodic");
   } else if (mode == 'T') {
     Serial.print("Timed (");
     Serial.print(alarmHour_1);
@@ -100,12 +111,26 @@ void setup()
   Serial.print(":");
   Serial.println(now.second());
   Serial.println("----------------------------");
- 
+
+  /* btSerial echo.ino from HC05
+  DEBUG_BEGIN(57600);
+  btSerial.findBaud();
+  */
 }
 
 void loop()
 {
   DateTime now = rtc.now(); 
+  /* btSerial echo.ino from HC05
+  btSerial.println("Echo Server- type something");
+    while (btSerial.connected())
+  {
+    if (btSerial.available())
+    {
+      btSerial.write(btSerial.read());
+    }
+  }
+  */
   
   // RTC DateTime variables: unixtime, year, month, day, hour, minute, second
   if (mode == 'T' ) {
@@ -186,7 +211,7 @@ void loop()
       ++counter;
       delay(1000);
     } else if (counter == counterwait) {
-      Serial.println("OK");
+      Serial.println(" OK");
       counter = 0;
       delay(1000);
     } else {
@@ -197,3 +222,5 @@ void loop()
     }
   }
 }
+
+
