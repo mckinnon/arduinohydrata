@@ -26,8 +26,8 @@ Serial.println("ERROR: RTC is NOT running. Check wiring.");
 * DS1307 - Tiny RTC I2C module (~1.5 mA)
 * HC-05 - Bluetooth module master/slave (<40mA)
 * FC-28 - soil moisture sensor module
-* Mini Pump - 3.5-6v generic, 80-120L/H (130-220mA)
-* Misc: LED & resistor, pin headers
+* Mini Pump - ShySky Tech(sic) 3.5-6v, 80-120L/H (<250mA)
+* Misc: LED, resistor, transistor, pin headers, etc
 
 ## WIRING
 Note: Wiring instructions may vary slightly between manufacturers. Check your pinouts.
